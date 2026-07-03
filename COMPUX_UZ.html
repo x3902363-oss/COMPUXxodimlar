@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMPUX UZ</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:20px}
+.hidden{display:none!important}
+
+/* AUTH */
+.auth-box{max-width:400px;margin:60px auto;background:white;padding:35px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.2)}
+.auth-box h2{color:#667eea;text-align:center;margin-bottom:20px;font-size:22px}
+.fg{margin-bottom:14px}
+.fg label{display:block;margin-bottom:5px;font-weight:600;font-size:14px}
+.fg input{width:100%;padding:11px;border:1px solid #ddd;border-radius:6px;font-size:14px}
+.abtn{width:100%;padding:12px;border:none;border-radius:6px;font-size:15px;font-weight:700;cursor:pointer;background:#667eea;color:white;margin-top:5px}
+.sw{text-align:center;margin-top:12px;font-size:14px;color:#666}
+.sw a{color:#667eea;cursor:pointer;text-decoration:underline}
+.msg{padding:11px;border-radius:6px;margin-bottom:12px;font-size:14px}
+.merr{background:#ffe0e0;color:#c0392b}
+.mok{background:#d4edda;color:#155724}
+
+/* HEADER */
+header{background:white;padding:15px 20px;border-radius:10px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+header h1{color:#667eea;font-size:20px}
+.lbtn{padding:8px 15px;background:#f0f0f0;border:none;border-radius:6px;cursor:pointer;font-weight:600}
+
+/* TABS */
+.tabs{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.tbtn{padding:11px 22px;background:white;border:2px solid #667eea;color:#667eea;border-radius:6px;cursor:pointer;font-weight:600}
+.tbtn.active{background:#667eea;color:white}
+
+/* PANELS */
+.panel{display:none;background:white;padding:25px;border-radius:10px}
+.panel.active{display:block}
+
+/* FORM */
+.row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.fg2{margin-bottom:14px}
+.fg2 label{display:block;margin-bottom:5px;font-weight:600;font-size:14px}
+.fg2 input,.fg2 select,.fg2 textarea{width:100%;padding:11px;border:1px solid #ddd;border-radius:6px;font-size:14px;font-family:sans-serif}
+.fg2 textarea{min-height:80px;resize:vertical}
+.pbtn{padding:11px 25px;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer}
+.pblue{background:#667eea;color:white}
+.pgreen{background:#2ed573;color:white}
+
+/* TOTAL */
+.total-box{background:#f5f5f5;padding:13px;border-radius:8px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.total-box .tnum{font-size:22px;font-weight:bold;color:#2ed573}
+
+/* CARDS */
+.list{margin-top:20px;display:grid;gap:12px}
+.card{background:#f9f9f9;border-left:4px solid #667eea;border-radius:6px;padding:15px}
+.card h3{color:#667eea;margin-bottom:8px}
+.card p{font-size:14px;margin:4px 0}
+.card select{padding:6px;border:1px solid #ddd;border-radius:4px;margin-top:8px;font-size:13px}
+.green{color:#2ed573;font-weight:bold}
+.badge{display:inline-block;background:#667eea;color:white;padding:2px 10px;border-radius:20px;font-size:12px;margin-bottom:8px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.scard{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:18px;border-radius:10px;text-align:center}
+.scard .snum{font-size:28px;font-weight:bold}
+.scard .slbl{font-size:12px;opacity:.9;margin-top:4px}
+.stitle{font-size:17px;font-weight:bold;color:#667eea;margin:20px 0 12px;border-bottom:2px solid #667eea;padding-bottom:6px}
+
+@media(max-width:600px){.row{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+
+/* CHEK MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;display:flex;align-items:center;justify-content:center}
+.modal{background:white;border-radius:12px;padding:24px;max-width:380px;width:92%}
+.modal{background:white;border-radius:12px;padding:24px;max-width:380px;width:92%}
+.chek-body{font-family:monospace;font-size:13px;line-height:2;border:1px dashed #bbb;padding:16px;border-radius:6px;margin-bottom:14px}
+.chek-body h3{text-align:center;font-size:15px;margin-bottom:4px}
+.chek-body .sub{text-align:center;font-size:11px;color:#888;margin-bottom:8px}
+.chek-body hr{border:none;border-top:1px dashed #ccc;margin:8px 0}
+.chek-row{display:flex;justify-content:space-between;gap:8px}
+.chek-row span:last-child{text-align:right}
+.btn-row{display:flex;gap:8px}
+@media print{body *{visibility:hidden}#chekPrint,#chekPrint *{visibility:visible}#chekPrint{position:fixed;top:10mm;left:50%;transform:translateX(-50%);width:72mm}}
+
+/* SKANER */
+#qrReader{border-radius:10px;overflow:hidden;border:2px solid #667eea}
+.scan-card{background:#f9f9f9;border-left:4px solid #2ed573;border-radius:6px;padding:16px;margin-top:14px}
+.scan-card.err{border-left-color:#ff4757}
+.scan-card h3{color:#2ed573;margin-bottom:8px}
+.javob-card{background:#f9f9f9;border-left:4px solid #667eea;border-radius:6px;padding:16px;margin-top:6px;font-size:15px;line-height:1.6}
+.javob-card b{color:#667eea}
+#micBtn.tinglayapti{background:#ff4757;animation:pulse 1.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,71,87,.5)}70%{box-shadow:0 0 0 16px rgba(255,71,87,0)}100%{box-shadow:0 0 0 0 rgba(255,71,87,0)}}
+
+/* YORLIQ (LABEL) */
+.label-body{font-family:sans-serif;text-align:center;border:1px dashed #bbb;padding:16px;border-radius:6px;margin-bottom:14px}
+.label-body .lshop{font-size:13px;font-weight:bold;color:#667eea;margin-bottom:6px}
+.label-body .lnom{font-size:15px;font-weight:600;margin-bottom:6px}
+.label-body .lnarx{font-size:20px;font-weight:bold;color:#2ed573;margin:8px 0}
+@media print{body *{visibility:hidden}#labelPrint,#labelPrint *{visibility:visible}#labelPrint{position:fixed;top:10mm;left:50%;transform:translateX(-50%);width:60mm}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- AUTH -->
+<div id="authBox" class="auth-box">
+  <h2>🖥️ COMPUX UZ</h2>
+  <div id="authMsg"></div>
+  <div id="loginDiv">
+    <div class="fg"><label>Username</label><input type="text" id="loginU" placeholder="username kiriting"></div>
+    <div class="fg"><label>Parol</label><input type="password" id="loginP" placeholder="parol kiriting"></div>
+    <button class="abtn" onclick="doLogin()">Kirish</button>
+    <div class="sw">Yangi hodim? <a onclick="showSignup()">Ro'yxatdan o'tish</a></div>
+  </div>
+  <div id="signupDiv" class="hidden">
+    <div class="fg"><label>Username</label><input type="text" id="signupU" placeholder="username kiriting"></div>
+    <div class="fg"><label>Parol (min 6 belgi)</label><input type="password" id="signupP" placeholder="parol kiriting"></div>
+    <button class="abtn" onclick="doSignup()">Ro'yxatdan o'tish</button>
+    <div class="sw">Akkount bor? <a onclick="showLogin()">Kirish</a></div>
+  </div>
+</div>
+
+<!-- HODIM APP -->
+<div id="mainApp" class="hidden">
+  <header>
+    <h1>🖥️ COMPUX UZ</h1>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span id="kursLabel" style="font-size:13px;color:#667eea;font-weight:600">💵 Kurs yuklanmoqda...</span>
+      <span>👤 <b id="userLabel"></b></span>
+      <button class="lbtn" onclick="doLogout()">Chiqish</button>
+    </div>
+  </header>
+  <div class="tabs">
+    <button class="tbtn active" onclick="openTab('repair',this)">🔧 Tuzatish</button>
+    <button class="tbtn" onclick="openTab('sales',this)">💰 Kassa</button>
+    <button class="tbtn" onclick="openTab('skaner',this)">📷 Skaner</button>
+    <button class="tbtn" onclick="openTab('omborH',this)">📦 Ombor</button>
+    <button class="tbtn" onclick="openTab('yordamchi',this)">🎙️ Yordamchi</button>
+  </div>
+
+  <!-- TUZATISH -->
+  <div id="repair" class="panel active">
+    <h2 style="margin-bottom:18px">Tuzatish Buyurtmasi</h2>
+    <div id="repairMsg"></div>
+    <div class="row">
+      <div class="fg2"><label>Mijoz Ismi</label><input type="text" id="rName" placeholder="Ismi"></div>
+      <div class="fg2"><label>Telefon</label><input type="tel" id="rPhone" placeholder="+998..."></div>
+    </div>
+    <div class="row">
+      <div class="fg2"><label>Qurilma</label>
+        <select id="rType"><option>Noutbuk</option><option>Kompyuter</option><option>Printer</option><option>Monitor</option><option>Telefon</option><option>Boshqa</option></select>
+      </div>
+      <div class="fg2"><label>Modeli</label><input type="text" id="rModel" placeholder="Dell, HP..."></div>
+    </div>
+    <div class="fg2"><label>Muammo</label><textarea id="rProblem" placeholder="Muammo tavsifi..."></textarea></div>
+    <button class="pbtn pblue" onclick="addRepair()">+ Qo'shish</button>
+    <div class="list" id="repairList"></div>
+  </div>
+
+  <!-- KASSA -->
+  <div id="sales" class="panel">
+    <h2 style="margin-bottom:18px">💰 Kassa - Mahsulotlar</h2>
+    <div id="salesMsg"></div>
+    <div id="katList" class="list"></div>
+    <div id="katMahsulotlar" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:15px">
+        <button onclick="katOrqaga()" style="padding:8px 16px;background:#667eea;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:700">← Orqaga</button>
+        <h3 id="katNomi" style="margin:0;color:#667eea"></h3>
+      </div>
+      <div class="list" id="kassaList"></div>
+    </div>
+    <h3 style="margin-top:25px;margin-bottom:12px;color:#667eea">📋 Sotish Tarixi</h3>
+    <div class="list" id="salesList"></div>
+  </div>
+  <!-- OMBOR -->
+  <div id="omborH" class="panel">
+    <h2 style="margin-bottom:18px">📦 Mahsulotlar Ombori</h2>
+    <div class="list" id="omborList"></div>
+  </div>
+
+  <!-- SKANER -->
+  <div id="skaner" class="panel">
+    <h2 style="margin-bottom:18px">📷 QR Skaner — Tezkor Sotish</h2>
+    <p style="color:#666;font-size:13px;margin-bottom:14px">Mahsulot yorlig'idagi QR-kodni kameraga tuting — avtomatik 1 dona sotiladi (Naqt), chek chiqadi. Xato bo'lsa "Bekor qilish" bilan qaytarasiz.</p>
+    <div id="scanMsg"></div>
+    <div id="qrReader"></div>
+    <div id="scanResult"></div>
+  </div>
+
+  <!-- OVOZLI YORDAMCHI -->
+  <div id="yordamchi" class="panel">
+    <h2 style="margin-bottom:18px">🎙️ Ovozli Yordamchi</h2>
+    <p style="color:#666;font-size:13px;margin-bottom:18px">Mikrofonni bosing va so'rang, masalan: <i>"bugungi sotuv qancha"</i>, <i>"omborning umumiy qiymati"</i>, <i>"eng ko'p sotilgan mahsulot"</i>, <i>"nechta ta'mirlash kutilmoqda"</i>.</p>
+    <div style="text-align:center;margin:10px 0 4px">
+      <label style="display:inline-flex;align-items:center;gap:8px;font-size:13px;color:#555;background:#f4f4fa;padding:8px 14px;border-radius:20px;cursor:pointer">
+        <input type="checkbox" id="aiRejimToggle" onchange="aiRejimOzgardi(this.checked)">
+        🤖 AI rejim (wake word + kompyuterni boshqarish, 100% pulsiz)
+      </label>
+      <p id="wakeStatus" style="margin-top:6px;color:#bbb;font-size:12px">AI rejim o'chirilgan</p>
+    </div>
+    <div style="text-align:center;margin:20px 0">
+      <button id="micBtn" onclick="micBosildi()" style="width:88px;height:88px;border-radius:50%;background:#667eea;border:none;color:white;font-size:34px;cursor:pointer;box-shadow:0 4px 14px rgba(102,126,234,.4)">🎤</button>
+      <p id="micStatus" style="margin-top:10px;color:#999;font-size:13px">Mikrofonni bosib gapiring</p>
+    </div>
+    <div id="soraldi" style="text-align:center;color:#333;font-style:italic;min-height:20px;margin-bottom:10px"></div>
+    <div id="javobKartasi"></div>
+  </div>
+  <!-- XAVFLI BUYRUQ TASDIQLASH OYNASI -->
+  <div id="tasdiqOyna" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center">
+    <div style="background:white;border-radius:14px;padding:24px;max-width:340px;text-align:center">
+      <p id="tasdiqMatn" style="font-size:15px;margin-bottom:18px;color:#333"></p>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button onclick="tasdiqJavob(true)" style="padding:10px 20px;background:#ff4757;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer">Ha, bajar</button>
+        <button onclick="tasdiqJavob(false)" style="padding:10px 20px;background:#eee;color:#333;border:none;border-radius:8px;font-weight:700;cursor:pointer">Bekor qilish</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="adminApp" class="hidden">
+  <header>
+    <h1>👑 ADMIN PANEL</h1>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span id="kursLabel" style="font-size:13px;color:#667eea;font-weight:600">💵 Kurs yuklanmoqda...</span>
+      <span>👤 <b>Muhammadayub</b></span>
+      <button class="lbtn" onclick="doLogout()">Chiqish</button>
+    </div>
+  </header>
+  <div class="tabs">
+    <button class="tbtn active" onclick="openAdminTab('aRepair',this)">🔧 Tuzatishlar</button>
+    <button class="tbtn" onclick="openAdminTab('aSales',this)">💰 Sotishlar</button>
+    <button class="tbtn" onclick="openAdminTab('aOmbor',this)">📦 Ombor</button>
+    <button class="tbtn" onclick="openAdminTab('aStats',this)">📊 Statistika</button>
+    <button class="tbtn" onclick="openAdminTab('aHodim',this)">👥 Hodimlar</button>
+  </div>
+
+  <div id="aRepair" class="panel active">
+    <div class="stitle">Barcha Tuzatish Buyurtmalari</div>
+    <input type="text" id="searchRepair" oninput="filterRepairs()" placeholder="🔍 Ism yoki telefon bo'yicha..." style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;margin-bottom:10px">
+    <div class="list" id="adminRepairList"></div>
+  </div>
+
+  <div id="aSales" class="panel">
+    <div class="stitle">Barcha Sotishlar</div>
+    <input type="text" id="searchSales" oninput="filterSales()" placeholder="🔍 Mahsulot nomi bo'yicha..." style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;margin-bottom:10px">
+    <div class="list" id="adminSalesList"></div>
+  </div>
+
+  <div id="aHodim" class="panel">
+    <div class="stitle">👥 Hodimlar Ro'yxati</div>
+    <div class="list" id="hodimList"></div>
+  </div>
+
+  <div id="aOmbor" class="panel">
+    <div class="stitle">📦 Kategoriya va Ombor Boshqaruvi</div>
+    <div id="omborMsg"></div>
+
+    <!-- Kategoriya qo'shish -->
+    <div style="background:#f8f9fa;border-radius:8px;padding:16px;margin-bottom:16px">
+      <h3 style="margin:0 0 12px;font-size:15px">📁 Yangi Kategoriya</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="katNomInput" placeholder="Kategoriya nomi (masalan: Zapchast)" style="flex:1;padding:9px;border:1px solid #ddd;border-radius:6px;font-size:14px;min-width:180px">
+        <button onclick="addKat()" style="padding:9px 18px;background:#667eea;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer">+ Qo'shish</button>
+      </div>
+    </div>
+
+    <!-- Kategoriyalar -->
+    <div class="list" id="adminKatList"></div>
+
+    <!-- Kategoriya ichiga mahsulot qo'shish -->
+    <div id="adminKatMahsulot" style="display:none;margin-top:16px;background:#f8f9fa;border-radius:8px;padding:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <button onclick="adminKatOrqaga()" style="padding:6px 14px;background:#636e72;color:white;border:none;border-radius:6px;cursor:pointer">← Orqaga</button>
+        <h3 id="adminKatNomi" style="margin:0;font-size:15px;color:#667eea"></h3>
+      </div>
+      <div class="row">
+        <div class="fg2"><label>Mahsulot Nomi</label><input type="text" id="omNom" placeholder="Dell RAM 8GB"></div>
+        <div class="fg2">
+          <label>Narxi</label>
+          <div style="display:flex;gap:6px">
+            <input type="number" id="omNarx" placeholder="0" oninput="omNarxValyuta()" style="flex:1;padding:11px;border:1px solid #ddd;border-radius:6px;font-size:14px">
+            <select id="omValyuta" onchange="omNarxValyuta()" style="padding:6px;border:1px solid #ddd;border-radius:6px;font-size:13px;min-width:90px">
+              <option value="som">🇺🇿 So'm</option>
+              <option value="dollar">🇺🇸 Dollar</option>
+            </select>
+          </div>
+          <small id="omNarxHint" style="color:#888;font-size:12px"></small>
+        </div>
+      </div>
+      <div class="fg2" style="max-width:200px"><label>Soni (dona)</label><input type="number" id="omSon" placeholder="0" min="1"></div>
+      <button class="pbtn pblue" onclick="addOmbor()">+ Mahsulot Qo'shish</button>
+      <div class="list" id="adminOmborList"></div>
+    </div>
+  </div>
+
+  <div id="aStats" class="panel">
+    <div class="stitle">Umumiy Statistika</div>
+    <div class="stats">
+      <div class="scard"><div class="snum" id="statR">0</div><div class="slbl">Jami Tuzatish</div></div>
+      <div class="scard"><div class="snum" id="statS">0</div><div class="slbl">Jami Sotish</div></div>
+      <div class="scard"><div class="snum" id="statP">0</div><div class="slbl">Kutilmoqda</div></div>
+      <div class="scard"><div class="snum" id="statRev">0</div><div class="slbl">Daromad (so'm)</div></div>
+    </div>
+  </div>
+
+</div><!-- /adminApp -->
+</div><!-- /wrap -->
+<!-- CHEK MODAL -->
+<div id="chekModal" class="modal-bg hidden">
+  <div class="modal">
+    <div id="chekPrint">
+      <div class="chek-body" id="chekContent"></div>
+    </div>
+    <div class="btn-row">
+      <button onclick="window.print()" style="flex:1;padding:10px;background:#667eea;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:14px">🖨️ Print</button>
+      <button onclick="closeChek()" style="flex:1;padding:10px;background:#eee;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:14px">✖ Yopish</button>
+    </div>
+  </div>
+</div>
+
+<!-- YORLIQ (LABEL) MODAL -->
+<div id="labelModal" class="modal-bg hidden">
+  <div class="modal">
+    <div id="labelPrint">
+      <div class="label-body" id="labelContent"></div>
+    </div>
+    <div class="btn-row">
+      <button onclick="window.print()" style="flex:1;padding:10px;background:#667eea;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:14px">🖨️ Print</button>
+      <button onclick="closeLabel()" style="flex:1;padding:10px;background:#eee;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:14px">✖ Yopish</button>
+    </div>
+  </div>
+</div>
+
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyAsCuotY59whRk4HjhwBT-_BskpNW9GGZQ",
+  authDomain:"compux-uz.firebaseapp.com",
+  projectId:"compux-uz",
+  storageBucket:"compux-uz.firebasestorage.app",
+  messagingSenderId:"681603447820",
+  appId:"1:681603447820:web:935d231a5df160c55e8229",
+  databaseURL:"https://compux-uz-default-rtdb.firebaseio.com"
+});
+const auth=firebase.auth();
+const db=firebase.database();
+const ADMIN='muhammadayub@compux.uz';
+
+auth.onAuthStateChanged(u=>{
+  hide('authBox');hide('mainApp');hide('adminApp');
+  if(u){
+    if(u.email===ADMIN){
+      show('adminApp');
+      loadAdmin();
+    } else {
+      show('mainApp');
+      id('userLabel').textContent=u.email.split('@')[0];
+      loadRepairs();
+      loadSales();
+      loadOmbor();
+    }
+  } else {
+    show('authBox');
+  }
+});
+
+function id(x){return document.getElementById(x)}
+function show(x){id(x).classList.remove('hidden')}
+function hide(x){id(x).classList.add('hidden')}
+function msg(elId,txt,err){id(elId).innerHTML='<div class="msg '+(err?'merr':'mok')+'">'+txt+'</div>'}
+function closeChek(){document.getElementById('chekModal').classList.add('hidden')}
+function closeLabel(){document.getElementById('labelModal').classList.add('hidden')}
+
+// Dollar kursi (CBU API)
+let dollarKurs=12500;
+async function loadDollarKurs(){
+  try{
+    const r=await fetch('https://cbu.uz/uz/arkhiv-kursov-valyut/json/USD/');
+    const d=await r.json();
+    if(d&&d[0]&&d[0].Rate){dollarKurs=parseFloat(d[0].Rate);updateKursLabel();}
+  }catch(e){console.log('Kurs yuklanmadi');}
+}
+function updateKursLabel(){
+  const el=document.getElementById('kursLabel');
+  if(el)el.textContent='💵 1 USD = '+Math.round(dollarKurs).toLocaleString()+' so\'m';
+}
+function somToDollar(som){return(som/dollarKurs).toFixed(2);}
+loadDollarKurs();
+
+function showLogin(){show('loginDiv');hide('signupDiv');id('authMsg').innerHTML=''}
+function showSignup(){hide('loginDiv');show('signupDiv');id('authMsg').innerHTML=''}
+
+function doLogin(){
+  const u=id('loginU').value.trim().toLowerCase();
+  const p=id('loginP').value.trim();
+  if(!u||!p){msg('authMsg','❌ Username va parolni kiriting!',true);return}
+  const email=u.includes('@')?u:u+'@compux.uz';
+  auth.signInWithEmailAndPassword(email,p)
+    .catch(e=>{
+      if(e.code==='auth/invalid-credential'||e.code==='auth/wrong-password'||e.code==='auth/invalid-login-credentials'){
+        msg('authMsg','❌ Username yoki parol noto\'g\'ri!',true);
+      } else if(e.code==='auth/user-not-found'){
+        msg('authMsg','❌ Bu foydalanuvchi topilmadi!',true);
+      } else {
+        msg('authMsg','❌ '+e.message,true);
+      }
+    });
+}
+
+function doSignup(){
+  const u=id('signupU').value.trim().toLowerCase();
+  const p=id('signupP').value.trim();
+  if(!u||!p){msg('authMsg','❌ Barcha maydonlarni to\'ldiring!',true);return}
+  if(p.length<6){msg('authMsg','❌ Parol kamida 6 ta belgi bo\'lsin!',true);return}
+  const email=u.includes('@')?u:u+'@compux.uz';
+  auth.createUserWithEmailAndPassword(email,p)
+    .then(()=>{msg('authMsg','✅ Muvaffaqiyatli! Endi kiring.',false);showLogin();})
+    .catch(e=>{
+      if(e.code==='auth/email-already-in-use'){
+        msg('authMsg','❌ Bu username band! Boshqa nom tanlang.',true);
+      } else {
+        msg('authMsg','❌ '+e.message,true);
+      }
+    });
+}
+
+function doLogout(){stopSkaner();auth.signOut();}
+
+function openTab(name,btn){
+  document.querySelectorAll('#mainApp .panel').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#mainApp .tbtn').forEach(b=>b.classList.remove('active'));
+  id(name).classList.add('active');btn.classList.add('active');
+  if(name==='skaner'){ startSkaner(); } else { stopSkaner(); }
+}
+
+function openAdminTab(name,btn){
+  document.querySelectorAll('#adminApp .panel').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#adminApp .tbtn').forEach(b=>b.classList.remove('active'));
+  id(name).classList.add('active');btn.classList.add('active');
+}
+
+function addRepair(){
+  const name=id('rName').value.trim();
+  const phone=id('rPhone').value.trim();
+  const type=id('rType').value;
+  const model=id('rModel').value.trim();
+  const problem=id('rProblem').value.trim();
+  if(!name||!phone||!problem){msg('repairMsg','❌ Ism, telefon va muammoni kiriting!',true);return}
+  db.ref('repairs').push({name,phone,type,model,problem,price:'0',payment:'Naqt',status:'Kutilmoqda',date:new Date().toLocaleString('uz-UZ'),by:auth.currentUser.email})
+    .then(()=>{
+      msg('repairMsg','✅ Qo\'shildi!',false);
+      id('rName').value='';id('rPhone').value='';id('rModel').value='';id('rProblem').value='';
+    }).catch(e=>msg('repairMsg','❌ '+e.message,true));
+}
+
+function loadRepairs(){
+  db.ref('repairs').on('value',snap=>{
+    const data=snap.val()||{};
+    const items=Object.entries(data).reverse();
+    id('repairList').innerHTML=items.length?items.map(([k,r])=>`
+      <div class="card" style="border-left-color:${r.status==='Tayyor'?'#2ed573':r.status==='Ishlashda'?'#ffa502':'#667eea'}">
+        <h3>${r.name}</h3>
+        <p>📞 ${r.phone}</p>
+        <p>🖥️ ${r.type}${r.model?' - '+r.model:''}</p>
+        <p>⚠️ ${r.problem}</p>
+        <p>💰 Narxi: <b>${parseInt(r.price||0).toLocaleString()} so'm</b></p>
+        <p>${r.payment==='Plastik'?'💳':'💵'} To\'lov: <b>${r.payment||'Naqt'}</b></p>
+        <p>🕐 Qabul: ${r.date}</p>
+        ${r.finishDate?`<p>✅ Tayyor: ${r.finishDate}</p>`:''}
+        <select onchange="updStatus('${k}',this.value)" style="margin-top:8px;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px;width:100%">
+          <option${r.status==='Kutilmoqda'?' selected':''}>Kutilmoqda</option>
+          <option${r.status==='Ishlashda'?' selected':''}>Ishlashda</option>
+          <option${r.status==='Tayyor'?' selected':''}>Tayyor ✅</option>
+        </select>
+        ${r.status==='Tayyor'?`<button onclick="chekChiqar('${k}')" style="margin-top:8px;width:100%;padding:8px;background:#667eea;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer">🖨️ Chek Chiqar</button>`:''}
+      </div>`).join(''):'<p style="color:#999;margin-top:10px">Buyurtmalar yo\'q</p>';
+  });
+}
+
+function updStatus(k,v){
+  const status=v.replace(' ✅','');
+  if(status==='Tayyor'){
+    const narx=prompt('💰 Tuzatish narxini kiriting (so\'m):');
+    if(narx===null) return;
+    const payment=confirm('💳 Plastik orqali to\'ladimi?\n(Bekor qilish = Naqt)') ? 'Plastik' : 'Naqt';
+    db.ref('repairs/'+k).update({status:'Tayyor', price:narx||'0', payment:payment, finishDate:new Date().toLocaleString('uz-UZ')});
+  } else {
+    db.ref('repairs/'+k+'/status').set(status);
+  }
+}
+
+function loadKassa(katId){
+  db.ref('ombor').orderByChild('katId').equalTo(katId).on('value',snap=>{
+    const data=snap.val()||{};
+    const items=Object.entries(data);
+    const el=id('kassaList');
+    if(!el)return;
+    el.innerHTML=items.length?items.map(([k,o])=>`
+      <div class="card" style="border-left-color:${o.son<=0?'#636e72':o.son<=3?'#ff4757':'#2ed573'}">
+        <h3>${o.nom}</h3>
+        <p>💰 Narxi: <b>${o.narx.toLocaleString()} so'm</b> <span style="color:#636e72;font-size:12px">(≈$${somToDollar(o.narx)})</span></p>
+        <p>📦 Qoldi: <b>${o.son} dona</b> ${o.son<=0?'<span style="color:#636e72">⛔ TUGAGAN</span>':o.son<=3?'<span style="color:#ff4757">⚠️ KAM QOLDI</span>':''}</p>
+        ${o.son>0?`
+        <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
+          <input type="number" id="qty_${k}" value="1" min="1" max="${o.son}" style="width:65px;padding:6px;border:1px solid #ddd;border-radius:4px">
+          <select id="valyuta_${k}" onchange="valyutaOzgardi('${k}',${o.narx})" style="padding:6px;border:1px solid #ddd;border-radius:4px">
+            <option value="som">🇺🇿 So'm</option>
+            <option value="dollar">🇺🇸 Dollar</option>
+          </select>
+          <input type="number" id="custom_narx_${k}" placeholder="narx" style="width:90px;padding:6px;border:1px solid #ddd;border-radius:4px" value="${o.narx}">
+          <select id="pay_${k}" style="padding:6px;border:1px solid #ddd;border-radius:4px">
+            <option value="Naqt">💵 Naqt</option>
+            <option value="Plastik">💳 Plastik</option>
+          </select>
+          <button onclick="sotish('${k}','${o.nom}',${o.narx},${o.son})" style="padding:6px 16px;background:#2ed573;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:700">✅ Sotish</button>
+        </div>`:''}
+      </div>`).join(''):'<p style="color:#999">Bu kategoriyada mahsulot yo\'q.</p>';
+  });
+}
+
+function valyutaOzgardi(k, aslNarx){
+  const valyuta=id('valyuta_'+k).value;
+  const inp=id('custom_narx_'+k);
+  if(valyuta==='dollar'){
+    inp.placeholder='dollar';
+    inp.value=somToDollar(aslNarx);
+  } else {
+    inp.placeholder='narx';
+    inp.value=aslNarx;
+  }
+}
+
+function sotish(k,nom,narx,son){
+  const qty=parseInt(id('qty_'+k).value)||1;
+  const payment=id('pay_'+k).value;
+  const valyuta=id('valyuta_'+k)?id('valyuta_'+k).value:'som';
+  let customNarx=parseFloat(id('custom_narx_'+k)?id('custom_narx_'+k).value:narx)||narx;
+  let narxSom, narxDollar;
+  if(valyuta==='dollar'){
+    narxDollar=customNarx;
+    narxSom=Math.round(customNarx*dollarKurs);
+  } else {
+    narxSom=Math.round(customNarx);
+    narxDollar=parseFloat(somToDollar(narxSom));
+  }
+  if(qty>son){msg('salesMsg','❌ Ombordan ko\'p tanlayapsiz!',true);return}
+  const sana=new Date().toLocaleString('uz-UZ');
+  const total=narxSom*qty;
+  const totalDollar=(narxDollar*qty).toFixed(2);
+  db.ref('sales').push({nom,narx:narxSom,narxDollar,qty,total,totalDollar,payment,date:sana,by:auth.currentUser.email,kurs:dollarKurs})
+    .then(()=>{
+      db.ref('ombor/'+k+'/son').set(son-qty);
+      msg('salesMsg','✅ Sotildi! Jami: '+total.toLocaleString()+' so\'m (≈$'+totalDollar+')',false);
+      chekSotish({nom,narx:narxSom,narxDollar,qty,total,totalDollar,payment,date:sana,kurs:dollarKurs});
+    }).catch(e=>msg('salesMsg','❌ '+e.message,true));
+}
+
+function loadSales(){
+  loadKat();
+  db.ref('sales').on('value',snap=>{
+    const data=snap.val()||{};
+    const items=Object.entries(data).reverse();
+    const el=id('salesList');
+    if(!el)return;
+    el.innerHTML=items.length?items.map(([k,s])=>`
+      <div class="card">
+        <h3>${s.nom||''}</h3>
+        <p>💵 ${(s.narx||0).toLocaleString()} so'm × ${s.qty} dona</p>
+        <p>${s.payment==='Plastik'?'💳':'💵'} ${s.payment||'Naqt'}</p>
+        <p class="green">💰 Jami: ${s.total.toLocaleString()} so'm <span style="color:#636e72;font-size:12px">(≈$${somToDollar(s.total)})</span></p>
+        <p>🕐 ${s.date}</p>
+        <button onclick="chekSotishKey('${k}')" style="margin-top:8px;width:100%;padding:8px;background:#667eea;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer">🖨️ Chek Chiqar</button>
+      </div>`).join(''):'<p style="color:#999;margin-top:10px">Sotish yo\'q</p>';
+  });
+}
+
+let activeKatId=null, activeKatIdAdmin=null;
+
+function addKat(){
+  const nom=id('katNomInput').value.trim();
+  if(!nom){msg('omborMsg','❌ Kategoriya nomini kiriting!',true);return}
+  db.ref('kategoriya').push({nom,date:new Date().toLocaleString('uz-UZ')})
+    .then(()=>{msg('omborMsg','✅ Kategoriya qo\'shildi!',false);id('katNomInput').value=''})
+    .catch(e=>msg('omborMsg','❌ '+e.message,true));
+}
+
+function delKat(k){
+  if(confirm('Kategoriya va ichidagi barcha mahsulotlar o\'chiriladi!'))
+    db.ref('kategoriya/'+k).remove().then(()=>db.ref('ombor').orderByChild('katId').equalTo(k).once('value',snap=>{
+      const updates={};
+      Object.keys(snap.val()||{}).forEach(mk=>updates['ombor/'+mk]=null);
+      db.ref().update(updates);
+    }));
+}
+
+function loadAdminKat(){
+  db.ref('kategoriya').on('value',snap=>{
+    const data=snap.val()||{};
+    const el=id('adminKatList');
+    if(!el)return;
+    const items=Object.entries(data);
+    el.innerHTML=items.length?items.map(([k,c])=>`
+      <div class="card" style="border-left-color:#667eea">
+        <h3>📁 ${c.nom}</h3>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button onclick="adminKatKir('${k}','${c.nom}')" style="padding:6px 16px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:700">📦 Mahsulotlar</button>
+          <button onclick="delKat('${k}')" style="padding:6px 14px;background:#ff4757;color:white;border:none;border-radius:4px;cursor:pointer">🗑️ O'chir</button>
+        </div>
+      </div>`).join(''):'<p style="color:#999">Kategoriya yo\'q. Yuqoridan qo\'shing.</p>';
+  });
+}
+
+function adminKatKir(katId, katNom){
+  activeKatIdAdmin=katId;
+  id('adminKatNomi').textContent='📁 '+katNom+' — Mahsulotlar';
+  id('adminKatList').style.display='none';
+  id('adminKatMahsulot').style.display='block';
+  loadAdminOmbor(katId);
+}
+
+function adminKatOrqaga(){
+  activeKatIdAdmin=null;
+  id('adminKatList').style.display='';
+  id('adminKatMahsulot').style.display='none';
+}
+
+function omNarxValyuta(){
+  const valyuta=id('omValyuta').value;
+  const hint=id('omNarxHint');
+  const narx=parseFloat(id('omNarx').value)||0;
+  if(valyuta==='dollar'){
+    hint.textContent=narx?'≈ '+Math.round(narx*dollarKurs).toLocaleString()+' so\'m':'Dollar kiriting';
+  } else {
+    hint.textContent=narx?'≈ $'+somToDollar(narx):'So\'m kiriting';
+  }
+}
+
+function addOmbor(){
+  const nom=id('omNom').value.trim();
+  const narxInput=parseFloat(id('omNarx').value);
+  const son=parseInt(id('omSon').value);
+  const valyuta=id('omValyuta').value;
+  if(!nom||!narxInput||!son){msg('omborMsg','❌ Barcha maydonlarni to\'ldiring!',true);return}
+  if(!activeKatIdAdmin){msg('omborMsg','❌ Kategoriyani tanlang!',true);return}
+  let narxSom, narxDollar;
+  if(valyuta==='dollar'){
+    narxDollar=narxInput;
+    narxSom=Math.round(narxInput*dollarKurs);
+  } else {
+    narxSom=Math.round(narxInput);
+    narxDollar=parseFloat(somToDollar(narxSom));
+  }
+  db.ref('ombor').push({nom,narx:narxSom,narxDollar,son,katId:activeKatIdAdmin,date:new Date().toLocaleString('uz-UZ')})
+    .then(()=>{
+      msg('omborMsg','✅ Mahsulot qo\'shildi! Narxi: '+narxSom.toLocaleString()+' so\'m (≈$'+narxDollar+')',false);
+      id('omNom').value='';id('omNarx').value='';id('omSon').value='';
+      id('omNarxHint').textContent='';
+    }).catch(e=>msg('omborMsg','❌ '+e.message,true));
+}
+
+function loadAdminOmbor(katId){
+  db.ref('ombor').orderByChild('katId').equalTo(katId).on('value',snap=>{
+    const data=snap.val()||{};
+    const items=Object.entries(data).reverse();
+    const adminEl=id('adminOmborList');
+    if(!adminEl)return;
+    adminEl.innerHTML=items.length?items.map(([k,o])=>`
+      <div class="card" style="border-left-color:${o.son<=3?'#ff4757':o.son<=10?'#ffa502':'#2ed573'}">
+        <h3>${o.nom}</h3>
+        <p>💰 Narxi: <b>${o.narx.toLocaleString()} so'm</b> <span style="color:#636e72;font-size:12px">(≈$${o.narxDollar||somToDollar(o.narx)})</span></p>
+        <p>📦 Qoldi: <b>${o.son} dona</b> ${o.son<=3?'⚠️ <b style="color:#ff4757">KAM QOLDI!</b>':''}</p>
+        <p>📅 ${o.date}</p>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button onclick="omborSon('${k}',${o.son},-1)" style="padding:6px 14px;background:#ff4757;color:white;border:none;border-radius:4px;cursor:pointer">- Kamaytir</button>
+          <button onclick="omborSon('${k}',${o.son},1)" style="padding:6px 14px;background:#2ed573;color:white;border:none;border-radius:4px;cursor:pointer">+ Ko'paytir</button>
+          <button onclick="labelChiqar('${k}')" style="padding:6px 14px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer">🏷️ Yorliq</button>
+          <button onclick="omborOch('${k}')" style="padding:6px 14px;background:#636e72;color:white;border:none;border-radius:4px;cursor:pointer">🗑️ O'chir</button>
+        </div>
+      </div>`).join(''):'<p style="color:#999;margin-top:10px">Bu kategoriyada mahsulot yo\'q</p>';
+  });
+}
+
+function loadOmbor(){
+  // Hodim ombori — kategoriyasiz ko'rish
+  db.ref('ombor').on('value',snap=>{
+    const data=snap.val()||{};
+    const items=Object.entries(data).reverse();
+    const omborEl=id('omborList');
+    if(omborEl){
+      omborEl.innerHTML=items.length?items.map(([k,o])=>`
+        <div class="card" style="border-left-color:${o.son<=3?'#ff4757':o.son<=10?'#ffa502':'#2ed573'}">
+          <h3>${o.nom}</h3>
+          <p>💰 Narxi: <b>${o.narx.toLocaleString()} so'm</b></p>
+          <p>📦 Qoldi: <b>${o.son} dona</b> ${o.son<=3?'⚠️ <span style="color:#ff4757">KAM QOLDI!</span>':''}</p>
+        </div>`).join(''):'<p style="color:#999;margin-top:10px">Mahsulotlar yo\'q</p>';
+    }
+  });
+}
+
+// Hodim kassa — kategoriyalar
+function loadKat(){
+  db.ref('kategoriya').once('value',snap=>{
+    const data=snap.val()||{};
+    const el=id('katList');
+    if(!el)return;
+    const items=Object.entries(data);
+    el.innerHTML=items.length?items.map(([k,c])=>`
+      <div class="card" style="border-left-color:#667eea;cursor:pointer" onclick="katKir('${k}','${c.nom}')">
+        <h3>📁 ${c.nom}</h3>
+        <p style="color:#667eea;font-size:13px">Bosing → mahsulotlarni ko'ring</p>
+      </div>`).join(''):'<p style="color:#999">Kategoriya yo\'q. Admin qo\'shishi kerak.</p>';
+  });
+}
+
+function katKir(katId, katNom){
+  activeKatId=katId;
+  id('katNomi').textContent='📁 '+katNom;
+  id('katList').style.display='none';
+  id('katMahsulotlar').style.display='block';
+  loadKassa(katId);
+}
+
+function katOrqaga(){
+  activeKatId=null;
+  id('katList').style.display='';
+  id('katMahsulotlar').style.display='none';
+  id('katList').innerHTML='';
+  loadKat();
+}
+
+function omborSon(k,son,delta){
+  const yangi=son+delta;
+  if(yangi<0)return;
+  db.ref('ombor/'+k+'/son').set(yangi);
+}
+
+function labelChiqar(k){
+  db.ref('ombor/'+k).once('value',snap=>{
+    const o=snap.val();
+    if(!o)return;
+    const qrData=encodeURIComponent(k);
+    id('labelContent').innerHTML=`
+      <div class="lshop">🖥️ COMPUX UZ</div>
+      <div class="lnom">${o.nom}</div>
+      <div class="lnarx">${o.narx.toLocaleString()} so'm</div>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${qrData}" style="width:110px;height:110px">
+      <div style="font-size:10px;color:#999;margin-top:4px">${k}</div>
+    `;
+    id('labelModal').classList.remove('hidden');
+  });
+}
+
+function omborOch(k){
+  if(confirm('Mahsulotni o\'chirasizmi?')) db.ref('ombor/'+k).remove();
+}
+
+let allRepairs=[], allSales=[];
+
+function loadAdmin(){
+  db.ref('repairs').on('value',snap=>{
+    const data=snap.val()||{};
+    allRepairs=Object.entries(data).reverse();
+    id('statR').textContent=allRepairs.length;
+    id('statP').textContent=allRepairs.filter(([k,r])=>r.status==='Kutilmoqda').length;
+    renderRepairs(allRepairs);
+  });
+  db.ref('sales').on('value',snap=>{
+    const data=snap.val()||{};
+    allSales=Object.entries(data).reverse();
+    id('statS').textContent=allSales.length;
+    const rev=allSales.reduce((s,[k,v])=>s+(v.total||0),0);
+    id('statRev').textContent=rev.toLocaleString();
+    renderSales(allSales);
+    loadHodimlar();
+  });
+  loadOmbor();
+  loadAdminKat();
+}
+
+function renderRepairs(items){
+  const el=id('adminRepairList');
+  if(!el)return;
+  el.innerHTML=items.length?items.map(([k,r])=>`
+    <div class="card" style="border-left-color:${r.status==='Tayyor'?'#2ed573':r.status==='Ishlashda'?'#ffa502':'#667eea'}">
+      <span class="badge">👤 ${r.by?r.by.split('@')[0]:'Hodim'}</span>
+      <h3>${r.name}</h3>
+      <p>📞 ${r.phone}</p>
+      <p>🖥️ ${r.type}${r.model?' - '+r.model:''}</p>
+      <p>⚠️ ${r.problem}</p>
+      <p>💰 Narxi: <b>${parseInt(r.price||0).toLocaleString()} so'm</b></p>
+      <p>${r.payment==='Plastik'?'💳':'💵'} To'lov: <b>${r.payment||'Naqt'}</b></p>
+      <p>🕐 ${r.date}</p>
+      <p><b>Status:</b> ${r.status}</p>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button onclick="delRepair('${k}')" style="padding:6px 14px;background:#ff4757;color:white;border:none;border-radius:4px;cursor:pointer">🗑️ O'chirish</button>
+        ${r.status==='Tayyor'?`<button onclick="chekChiqar('${k}')" style="padding:6px 14px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer">🖨️ Chek</button>`:''}
+      </div>
+    </div>`).join(''):'<p style="color:#999">Buyurtmalar yo\'q</p>';
+}
+
+function renderSales(items){
+  const el=id('adminSalesList');
+  if(!el)return;
+  el.innerHTML=items.length?items.map(([k,s])=>`
+    <div class="card">
+      <span class="badge">👤 ${s.by?s.by.split('@')[0]:'Hodim'}</span>
+      <h3>${s.nom||''}</h3>
+      <p>💵 ${(s.narx||0).toLocaleString()} so'm × ${s.qty||1} dona</p>
+      <p>${s.payment==='Plastik'?'💳':'💵'} ${s.payment||'Naqt'}</p>
+      <p class="green">💰 Jami: ${(s.total||0).toLocaleString()} so'm</p>
+      <p>🕐 ${s.date}</p>
+      <button onclick="delSale('${k}')" style="margin-top:10px;padding:6px 14px;background:#ff4757;color:white;border:none;border-radius:4px;cursor:pointer">🗑️ O'chirish</button>
+    </div>`).join(''):'<p style="color:#999">Sotish yo\'q</p>';
+}
+
+function filterRepairs(){
+  const q=(id('searchRepair').value||'').toLowerCase();
+  renderRepairs(q?allRepairs.filter(([k,r])=>(r.name||'').toLowerCase().includes(q)||(r.phone||'').includes(q)):allRepairs);
+}
+
+function filterSales(){
+  const q=(id('searchSales').value||'').toLowerCase();
+  renderSales(q?allSales.filter(([k,s])=>(s.nom||'').toLowerCase().includes(q)||(s.by||'').toLowerCase().includes(q)):allSales);
+}
+
+function loadHodimlar(){
+  const hodimlar={};
+  allRepairs.forEach(([k,r])=>{
+    const n=r.by?r.by.split('@')[0]:'noma\'lum';
+    if(!hodimlar[n])hodimlar[n]={tuzatish:0,sotish:0,daromad:0};
+    hodimlar[n].tuzatish++;
+  });
+  allSales.forEach(([k,s])=>{
+    const n=s.by?s.by.split('@')[0]:'noma\'lum';
+    if(!hodimlar[n])hodimlar[n]={tuzatish:0,sotish:0,daromad:0};
+    hodimlar[n].sotish++;
+    hodimlar[n].daromad+=(s.total||0);
+  });
+  const el=id('hodimList');
+  if(!el)return;
+  const entries=Object.entries(hodimlar);
+  el.innerHTML=entries.length?entries.map(([nom,d])=>`
+    <div class="card">
+      <h3>👤 ${nom}</h3>
+      <p>🔧 Tuzatish: <b>${d.tuzatish}</b> ta</p>
+      <p>💰 Sotish: <b>${d.sotish}</b> ta</p>
+      <p class="green">💵 Daromad: ${d.daromad.toLocaleString()} so'm</p>
+    </div>`).join(''):'<p style="color:#999">Ma\'lumot yo\'q</p>';
+}
+
+function chekSotish(s){
+  id('chekContent').innerHTML=`
+    <h3>⚙️ COMPUX UZ</h3>
+    <div class="sub">Kompyuter Servis Markazi</div>
+    <hr>
+    <div class="chek-row"><span>Sana:</span><span>${s.date}</span></div>
+    <hr>
+    <div class="chek-row"><span>Mahsulot:</span><span>${s.nom}</span></div>
+    <div class="chek-row"><span>Narxi:</span><span>${(s.narx||0).toLocaleString()} so'm${s.narxDollar?` (≈$${s.narxDollar})`:''}</span></div>
+    <div class="chek-row"><span>Soni:</span><span>${s.qty} dona</span></div>
+    <hr>
+    <div class="chek-row"><span>To'lov:</span><span>${s.payment||'Naqt'}</span></div>
+    <div class="chek-row" style="font-size:15px;font-weight:bold"><span>JAMI:</span><span>${(s.total||0).toLocaleString()} so'm</span></div>
+    <div class="chek-row" style="font-size:12px;color:#888"><span>Dollar:</span><span>≈ $${s.totalDollar||somToDollar(s.total||0)}</span></div>
+    ${s.kurs?`<div class="chek-row" style="font-size:11px;color:#aaa"><span>Kurs:</span><span>1$=${Math.round(s.kurs).toLocaleString()} so'm</span></div>`:''}
+    <hr>
+    <div style="text-align:center;margin-top:8px">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://t.me/COMPUX_UZ" style="width:80px;height:80px">
+      <p style="font-size:11px;margin:4px 0 0">📢 @COMPUX_UZ</p>
+    </div>
+  `;
+  id('chekModal').classList.remove('hidden');
+}
+
+function chekSotishKey(k){
+  db.ref('sales/'+k).once('value',snap=>{
+    const s=snap.val();
+    if(!s)return;
+    chekSotish(s);
+  });
+}
+
+function chekChiqar(k){
+  db.ref('repairs/'+k).once('value',snap=>{
+    const r=snap.val();
+    if(!r)return;
+    id('chekContent').innerHTML=`
+      <h3>⚙️ COMPUX UZ</h3>
+      <div class="sub">Kompyuter Servis Markazi</div>
+      <hr>
+      <div class="chek-row"><span>Sana:</span><span>${r.finishDate||r.date}</span></div>
+      <hr>
+      <div class="chek-row"><span>Mijoz:</span><span>${r.name}</span></div>
+      <div class="chek-row"><span>Telefon:</span><span>${r.phone}</span></div>
+      <div class="chek-row"><span>Qurilma:</span><span>${r.type}${r.model?' '+r.model:''}</span></div>
+      <div class="chek-row"><span>Muammo:</span><span style="max-width:55%;text-align:right">${r.problem}</span></div>
+      <hr>
+      <div class="chek-row"><span>To'lov:</span><span>${r.payment||'Naqt'}</span></div>
+      <div class="chek-row" style="font-size:15px;font-weight:bold"><span>JAMI:</span><span>${parseInt(r.price||0).toLocaleString()} so'm</span></div>
+      <div class="chek-row" style="font-size:12px;color:#888"><span>Dollar:</span><span>≈ $${somToDollar(parseInt(r.price||0))}</span></div>
+      <hr>
+      <div style="text-align:center;margin-top:8px">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://t.me/COMPUX_UZ" style="width:80px;height:80px">
+        <p style="font-size:11px;margin:4px 0 0">📢 @COMPUX_UZ</p>
+      </div>
+    `;
+    id('chekModal').classList.remove('hidden');
+  });
+}
+
+function delRepair(k){
+  if(confirm('Bu buyurtmani o\'chirasizmi?')) db.ref('repairs/'+k).remove();
+}
+
+function delSale(k){
+  if(confirm('Bu sotishni o\'chirasizmi?')) db.ref('sales/'+k).remove();
+}
+
+/* ================= OVOZLI YORDAMCHI ================= */
+let recognition=null, tinglayapti=false, ozimVoice=null;
+
+/* ============ AI REJIM: WAKE WORD + KOMPYUTER BOSHQARUVI (100% PULSIZ) ============ */
+let aiRejim=false, wakeRecognition=null, tasdiqResolver=null;
+
+function aiRejimOzgardi(yoqilgan){
+  aiRejim=yoqilgan;
+  if(!window.electronAPI){
+    id('wakeStatus').textContent="Bu funksiya faqat Windows dasturida (.exe) ishlaydi, brauzerda yo'q.";
+    id('aiRejimToggle').checked=false;
+    aiRejim=false;
+    return;
+  }
+  if(aiRejim){
+    wakeSoznTinglashniBoshla();
+    id('wakeStatus').textContent='👂 "hey compux" deyishingizni kutyapman...';
+    proaktivKuzatuvniBoshla();
+  } else {
+    if(wakeRecognition) wakeRecognition.stop();
+    id('wakeStatus').textContent='AI rejim o\'chirilgan';
+  }
+}
+
+function wakeSoznTinglashniBoshla(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR) return;
+  wakeRecognition = new SR();
+  wakeRecognition.lang='uz-UZ';
+  wakeRecognition.continuous=true;
+  wakeRecognition.interimResults=false;
+  wakeRecognition.onresult=(e)=>{
+    const oxirgi=e.results[e.results.length-1][0].transcript.toLowerCase();
+    if(oxirgi.includes('hey compux')||oxirgi.includes('robot')||oxirgi.includes('compux')){
+      const buyruq=oxirgi.replace(/hey compux|compux|robot/g,'').trim();
+      wakeRecognition.stop();
+      if(buyruq.length>2){
+        buyruqBajar(buyruq);
+      } else {
+        id('wakeStatus').textContent='Eshityapman, ayting...';
+        micBosildiAI();
+      }
+    }
+  };
+  wakeRecognition.onend=()=>{ if(aiRejim) wakeRecognition.start(); }; // doim qayta tiklanadi
+  wakeRecognition.onerror=()=>{ if(aiRejim) setTimeout(()=>wakeRecognition.start(),1000); };
+  wakeRecognition.start();
+}
+
+function micBosildiAI(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const r=new SR(); r.lang='uz-UZ'; r.continuous=false; r.interimResults=false;
+  r.onresult=(e)=>buyruqBajar(e.results[0][0].transcript);
+  r.onend=()=>{ if(aiRejim) wakeRecognition.start(); };
+  r.start();
+}
+
+// Kelgan gapni avval KOMPYUTER buyrug'iga, bo'lmasa SAYT buyrug'iga (savolgaJavob) yuboradi
+async function buyruqBajar(xomMatn){
+  const matn=xomMatn.toLowerCase();
+  id('soraldi').textContent='"'+xomMatn+'"';
+  const komp=kompyuterBuyruqAniqlash(matn);
+  if(komp){
+    const natija=await kompyuterVositasi(komp.nomi, komp.input||{});
+    javobChiqar(natija, natija);
+  } else {
+    savolgaJavob(matn);
+  }
+  if(aiRejim) id('wakeStatus').textContent='👂 "hey compux" deyishingizni kutyapman...';
+}
+
+// Gapdan qaysi kompyuter buyrug'i so'ralganini aniqlaydi (kalit so'zlar asosida, pulsiz)
+function kompyuterBuyruqAniqlash(matn){
+  if(matn.includes('kompyuterni') && (matn.includes('ochir')||matn.includes("o'chir")) && !matn.includes('qayta'))
+    return {nomi:'tizimni_ochirish'};
+  if(matn.includes('qayta yukla')||matn.includes('restart'))
+    return {nomi:'qayta_yuklash'};
+  if(matn.includes('skrinshot')||matn.includes('ekran rasmi'))
+    return {nomi:'ekran_rasmi_olish'};
+  if(matn.includes('ovoz') && (matn.includes('balandligi')||matn.includes('darajasi')||matn.includes('qil'))){
+    const son=matn.match(/\d+/);
+    return {nomi:'ovoz_balandligi', input:{daraja: son?parseInt(son[0]):50}};
+  }
+  if(matn.includes('papkasini och')||matn.includes('papkani och')){
+    const nomi=matn.replace('papkasini och','').replace('papkani och','').trim();
+    return {nomi:'papka_ochish', input:{yol:nomi}};
+  }
+  if(matn.includes('faylini qidir')||matn.includes('faylni qidir')||matn.includes('faylni top')){
+    const nomi=matn.replace(/faylini qidir|faylni qidir|faylni top/g,'').trim();
+    return {nomi:'fayl_qidirish', input:{nomi}};
+  }
+  if(matn.includes('dasturini och')||matn.includes('dasturni och')||matn.includes('dastur och')){
+    const nomi=matn.replace(/dasturini och|dasturni och|dastur och/g,'').trim();
+    return {nomi:'dastur_ochish', input:{nomi}};
+  }
+  return null;
+}
+
+// KOMPYUTER VOSITALARI — Electron main process orqali bajariladi
+const xavfliVositalar=['tizimni_ochirish','qayta_yuklash'];
+function kompyuterVositasi(nomi,input){
+  if(!window.electronAPI) return Promise.resolve('Bu buyruq faqat Windows dasturida ishlaydi.');
+  if(xavfliVositalar.includes(nomi)){
+    return tasdiqSora(`"${nomi.replace('_',' ')}" buyrug'ini bajarishni tasdiqlaysizmi?`).then(rozi=>{
+      if(!rozi) return 'Bekor qilindi.';
+      return window.electronAPI.kompyuterBuyrugi(nomi,input);
+    });
+  }
+  return window.electronAPI.kompyuterBuyrugi(nomi,input);
+}
+
+function tasdiqSora(matn){
+  return new Promise(res=>{
+    id('tasdiqMatn').textContent=matn;
+    id('tasdiqOyna').style.display='flex';
+    tasdiqResolver=res;
+  });
+}
+function tasdiqJavob(rozi){
+  id('tasdiqOyna').style.display='none';
+  if(tasdiqResolver) tasdiqResolver(rozi);
+  tasdiqResolver=null;
+}
+
+/* ============ PROAKTIV KUZATUV ============ */
+let kamQolganOgohlantirilgan={};
+function proaktivKuzatuvniBoshla(){
+  db.ref('ombor').on('value',snap=>{
+    if(!aiRejim) return;
+    snap.forEach(c=>{
+      const o=c.val();
+      if(Number(o.son)<=3 && !kamQolganOgohlantirilgan[c.key]){
+        kamQolganOgohlantirilgan[c.key]=true;
+        gapirJavob(`Diqqat, ${o.nom} mahsulotidan atigi ${o.son} dona qoldi.`);
+      }
+      if(Number(o.son)>3) kamQolganOgohlantirilgan[c.key]=false;
+    });
+  });
+}
+/* ============ /AI REJIM ============ */
+
+if('speechSynthesis' in window){
+  window.speechSynthesis.onvoiceschanged=()=>{
+    const voices=window.speechSynthesis.getVoices();
+    ozimVoice = voices.find(v=>v.lang.toLowerCase().startsWith('uz')) || voices.find(v=>v.lang.toLowerCase().startsWith('tr')) || null;
+  };
+}
+
+function gapirJavob(matn){
+  if(!('speechSynthesis' in window))return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(matn);
+  if(ozimVoice){ u.voice=ozimVoice; u.lang=ozimVoice.lang; } else { u.lang='uz-UZ'; }
+  u.rate=0.95;
+  window.speechSynthesis.speak(u);
+}
+
+function micBosildi(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){
+    id('micStatus').textContent="Bu brauzer ovoz tanishni qo'llamaydi. Chrome ishlating.";
+    return;
+  }
+  if(tinglayapti){ recognition.stop(); return; }
+
+  recognition = new SR();
+  recognition.lang='uz-UZ';
+  recognition.continuous=false;
+  recognition.interimResults=false;
+
+  recognition.onstart=()=>{
+    tinglayapti=true;
+    id('micBtn').classList.add('tinglayapti');
+    id('micStatus').textContent='Tinglanmoqda...';
+  };
+  recognition.onerror=(e)=>{
+    id('micStatus').textContent="Eshitilmadi, qayta urinib ko'ring.";
+  };
+  recognition.onend=()=>{
+    tinglayapti=false;
+    id('micBtn').classList.remove('tinglayapti');
+    id('micStatus').textContent='Mikrofonni bosib gapiring';
+  };
+  recognition.onresult=(e)=>{
+    const matn=e.results[0][0].transcript;
+    id('soraldi').textContent='"'+matn+'"';
+    savolgaJavob(matn.toLowerCase());
+  };
+  recognition.start();
+}
+
+function javobChiqar(html, ovozMatn){
+  id('javobKartasi').innerHTML=`<div class="javob-card">${html}</div>`;
+  gapirJavob(ovozMatn);
+}
+
+function bugunSanaBoshlanishi(){
+  const d=new Date();
+  return `${d.getDate().toString().padStart(2,'0')}.${(d.getMonth()+1).toString().padStart(2,'0')}.${d.getFullYear()}`;
+}
+
+function ovozTabOch(name){
+  const btn=document.querySelector(`.tbtn[onclick*="openTab('${name}'"]`);
+  if(btn) openTab(name, btn);
+}
+
+function ovozSotish(nomQismi){
+  db.ref('ombor').once('value',snap=>{
+    let topilganKey=null, topilgan=null;
+    snap.forEach(c=>{
+      const o=c.val();
+      if(o.nom && nomQismi.includes(o.nom.toLowerCase())){ topilganKey=c.key; topilgan=o; }
+    });
+    if(!topilgan){
+      javobChiqar('Bu nomdagi mahsulotni omborda topa olmadim.', 'Bu nomdagi mahsulotni omborda topa olmadim.');
+      return;
+    }
+    if(topilgan.son<=0){
+      javobChiqar(`"${topilgan.nom}" ombordan tugagan.`, `${topilgan.nom} ombordan tugagan.`);
+      return;
+    }
+    const qty=1, payment='Naqt';
+    const sana=new Date().toLocaleString('uz-UZ');
+    const total=topilgan.narx*qty;
+    const totalDollar=(parseFloat(topilgan.narxDollar||somToDollar(topilgan.narx))*qty).toFixed(2);
+    const saleData={nom:topilgan.nom,narx:topilgan.narx,narxDollar:topilgan.narxDollar,qty,total,totalDollar,payment,date:sana,by:auth.currentUser.email,kurs:dollarKurs};
+    db.ref('sales').push(saleData).then(ref=>{
+      db.ref('ombor/'+topilganKey+'/son').set(topilgan.son-qty);
+      chekSotish(saleData);
+      javobChiqar(`✅ "${topilgan.nom}" sotildi — ${total.toLocaleString()} so'm.`, `${topilgan.nom} sotildi, ${total.toLocaleString()} so'm.`);
+    });
+  });
+}
+
+function savolgaJavob(matn){
+  // YORDAM — BARCHA BUYRUQLAR RO'YXATI
+  if(matn.includes('yordam') || matn.includes('nima qila')){
+    const txt=`Men shularni bilaman:<br>
+    • "bugungi sotuv qancha"<br>
+    • "kassada qancha pul bor"<br>
+    • "omborning umumiy qiymati"<br>
+    • "eng ko'p sotilgan mahsulot"<br>
+    • "eng ko'p daromad keltirgan mahsulot"<br>
+    • "omborda [mahsulot nomi] necha dona"<br>
+    • "qaysi mahsulotlar kam qoldi"<br>
+    • "nechta ta'mirlash kutilmoqda"<br>
+    • "bugun nechta mijoz keldi"<br>
+    • "dollar kursi qancha"<br>
+    • "[mahsulot nomi] sotdim"<br>
+    • "yangi ta'mirlash qo'sh"<br>
+    • "kassa oynasini och" / "omborni och" / "skanerni och" / "tuzatish oynasini och"<br>
+    • "[xodim ismi] bugun nechta ish qildi"`;
+    javobChiqar(txt, 'Men sotuv, ombor, ta\'mirlash va kassa haqida savollarga javob bera olaman, oynalarni ochib, ovoz bilan sotuv ham qila olaman. Batafsilini ekranda ko\'ring.');
+    return;
+  }
+
+  // OYNALARNI OCHISH (NAVIGATSIYA)
+  if(matn.includes('och') && (matn.includes('kassa')||matn.includes('sotuv oyna'))){
+    ovozTabOch('sales');
+    javobChiqar('💰 Kassa oynasi ochildi.', 'Kassa oynasi ochildi.');
+    return;
+  }
+  if(matn.includes('och') && matn.includes('ombor')){
+    ovozTabOch('omborH');
+    javobChiqar('📦 Ombor oynasi ochildi.', 'Ombor oynasi ochildi.');
+    return;
+  }
+  if(matn.includes('och') && (matn.includes('tuzatish')||matn.includes('tamirlash')||matn.includes("ta'mirlash"))){
+    ovozTabOch('repair');
+    javobChiqar('🔧 Tuzatish oynasi ochildi.', 'Tuzatish oynasi ochildi.');
+    return;
+  }
+  if(matn.includes('och') && matn.includes('skaner')){
+    ovozTabOch('skaner');
+    javobChiqar('📷 Skaner oynasi ochildi.', 'Skaner oynasi ochildi.');
+    return;
+  }
+
+  // YANGI TA'MIRLASH QO'SHISH — FORMANI OCHIB BERADI
+  if(matn.includes('yangi') && (matn.includes('tamirlash')||matn.includes("ta'mirlash")||matn.includes('buyurtma'))){
+    ovozTabOch('repair');
+    javobChiqar('🔧 Yangi ta\'mirlash formasi ochildi, ma\'lumotlarni kiriting.', 'Yangi ta\'mirlash formasini ochdim, ma\'lumotlarni kiriting.');
+    return;
+  }
+
+  // OVOZ ORQALI TO'G'RIDAN-TO'G'RI SOTISH: "[mahsulot] sotdim"
+  if(matn.includes('sotdim')){
+    ovozSotish(matn.replace('sotdim','').trim());
+    return;
+  }
+
+  // DOLLAR KURSI
+  if(matn.includes('dollar') && (matn.includes('kurs')||matn.includes('qancha'))){
+    javobChiqar(`💵 Joriy kurs: <b>1 USD = ${Math.round(dollarKurs).toLocaleString()} so'm</b>.`, `Joriy dollar kursi, bir dollar ${Math.round(dollarKurs).toLocaleString()} so'mga teng.`);
+    return;
+  }
+
+  // KASSADA QANCHA PUL BOR (bugungi, to'lov turlari bo'yicha)
+  if(matn.includes('kassa') && (matn.includes('pul')||matn.includes('qancha'))){
+    db.ref('sales').once('value',snap=>{
+      let naqt=0, plastik=0;
+      const bugun=bugunSanaBoshlanishi();
+      snap.forEach(c=>{
+        const s=c.val();
+        if(s.date && s.date.startsWith(bugun)){
+          if(s.payment==='Plastik') plastik+=Number(s.total)||0;
+          else naqt+=Number(s.total)||0;
+        }
+      });
+      const jami=naqt+plastik;
+      const txt=`Bugungi kassa: <b>${jami.toLocaleString()} so'm</b><br>💵 Naqt: ${naqt.toLocaleString()} so'm<br>💳 Plastik: ${plastik.toLocaleString()} so'm`;
+      javobChiqar(txt, `Bugungi kassada jami ${jami.toLocaleString()} so'm bor, shundan ${naqt.toLocaleString()} so'm naqt, ${plastik.toLocaleString()} so'm plastik orqali.`);
+    });
+    return;
+  }
+
+  // BUGUN NECHTA MIJOZ KELDI
+  if(matn.includes('mijoz')){
+    db.ref('repairs').once('value',snap=>{
+      let soni=0;
+      const bugun=bugunSanaBoshlanishi();
+      snap.forEach(c=>{
+        const r=c.val();
+        if(r.date && r.date.startsWith(bugun)) soni++;
+      });
+      if(soni===0) javobChiqar('Bugun hali yangi mijoz kelmagan.', 'Bugun hali yangi mijoz kelmagan.');
+      else javobChiqar(`Bugun <b>${soni} ta</b> yangi mijoz keldi.`, `Bugun ${soni} ta yangi mijoz keldi.`);
+    });
+    return;
+  }
+
+  // KAM QOLGAN / TUGAB QOLAYOTGAN MAHSULOTLAR
+  if(matn.includes('kam qol') || matn.includes('tugab') || matn.includes('ogohlantir')){
+    db.ref('ombor').once('value',snap=>{
+      const kam=[];
+      snap.forEach(c=>{
+        const o=c.val();
+        if(Number(o.son)<=3) kam.push(o);
+      });
+      if(!kam.length){
+        javobChiqar('Hozircha kam qolgan mahsulot yo\'q.', 'Hozircha kam qolgan mahsulot yo\'q.');
+        return;
+      }
+      const royxat=kam.slice(0,8).map(o=>`${o.nom} — ${o.son} dona`).join('<br>');
+      javobChiqar(`⚠️ Kam qolgan mahsulotlar:<br>${royxat}`, `${kam.length} ta mahsulot kam qoldi, ular orasida ${kam.slice(0,3).map(o=>o.nom).join(', ')} bor.`);
+    });
+    return;
+  }
+
+  // ENG KO'P DAROMAD KELTIRGAN MAHSULOT
+  if(matn.includes('foydali') || (matn.includes('daromad') && matn.includes('mahsulot'))){
+    db.ref('sales').once('value',snap=>{
+      const hisob={};
+      snap.forEach(c=>{
+        const s=c.val();
+        hisob[s.nom]=(hisob[s.nom]||0)+(Number(s.total)||0);
+      });
+      const kalitlar=Object.keys(hisob);
+      if(!kalitlar.length){ javobChiqar('Hali hech qanday sotuv yo\'q.', 'Hali hech qanday sotuv yo\'q.'); return; }
+      let top=kalitlar[0];
+      kalitlar.forEach(k=>{ if(hisob[k]>hisob[top]) top=k; });
+      javobChiqar(`Eng ko'p daromad keltirgan mahsulot: <b>${top}</b> — ${hisob[top].toLocaleString()} so'm.`, `Eng ko'p daromad keltirgan mahsulot ${top}, jami ${hisob[top].toLocaleString()} so'm daromad keltirgan.`);
+    });
+    return;
+  }
+
+  // HAFTALIK / OYLIK SOTUV
+  if((matn.includes('haftalik')||matn.includes('oylik')) && matn.includes('sotuv')){
+    const kunlar = matn.includes('oylik') ? 30 : 7;
+    db.ref('sales').once('value',snap=>{
+      let jami=0, soni=0;
+      const hozir=new Date();
+      snap.forEach(c=>{
+        const s=c.val();
+        if(!s.date) return;
+        const bo=s.date.split(' ')[0].split('.');
+        if(bo.length<3) return;
+        const sanaObj=new Date(+bo[2], +bo[1]-1, +bo[0]);
+        const farq=(hozir-sanaObj)/(1000*60*60*24);
+        if(farq>=0 && farq<=kunlar){ jami+=Number(s.total)||0; soni++; }
+      });
+      if(soni===0) javobChiqar(`So'nggi ${kunlar} kunda sotuv bo'lmagan.`, `So'nggi ${kunlar} kunda sotuv bo'lmagan.`);
+      else javobChiqar(`So'nggi ${kunlar} kunda <b>${soni} ta</b> sotuv, jami <b>${jami.toLocaleString()} so'm</b>.`, `So'nggi ${kunlar} kunda ${soni} ta sotuv, jami ${jami.toLocaleString()} so'm bo'ldi.`);
+    });
+    return;
+  }
+
+  // XODIM ISH SAMARADORLIGI (bugungi)
+  if(matn.includes('ish qildi') || (matn.includes('hodim') && matn.includes('nechta')) || (matn.includes('xodim') && matn.includes('nechta'))){
+    Promise.all([db.ref('repairs').once('value'), db.ref('sales').once('value')]).then(([rsnap,ssnap])=>{
+      const bugun=bugunSanaBoshlanishi();
+      const hodimlar={};
+      rsnap.forEach(c=>{
+        const r=c.val();
+        const n=r.by?r.by.split('@')[0].toLowerCase():null;
+        if(!n || !matn.includes(n)) return;
+        hodimlar[n]=hodimlar[n]||{tuzatish:0,sotish:0};
+        if(r.date && r.date.startsWith(bugun)) hodimlar[n].tuzatish++;
+      });
+      ssnap.forEach(c=>{
+        const s=c.val();
+        const n=s.by?s.by.split('@')[0].toLowerCase():null;
+        if(!n || !matn.includes(n)) return;
+        hodimlar[n]=hodimlar[n]||{tuzatish:0,sotish:0};
+        if(s.date && s.date.startsWith(bugun)) hodimlar[n].sotish++;
+      });
+      const topilgan=Object.keys(hodimlar);
+      if(!topilgan.length){
+        javobChiqar('Bu ismdagi xodimni topa olmadim.', 'Bu ismdagi xodimni topa olmadim.');
+        return;
+      }
+      const n=topilgan[0], d=hodimlar[n];
+      const jami=d.tuzatish+d.sotish;
+      javobChiqar(`👤 <b>${n}</b> bugun: ${d.tuzatish} ta ta'mirlash, ${d.sotish} ta sotuv — jami ${jami} ta ish.`, `${n} bugun ${d.tuzatish} ta ta'mirlash va ${d.sotish} ta sotuv qildi.`);
+    });
+    return;
+  }
+
+  // 1) BUGUNGI SOTUV
+  if(matn.includes('sotuv') && (matn.includes('bugun') || matn.includes('qancha'))){
+    db.ref('sales').once('value',snap=>{
+      let jami=0, soni=0;
+      const bugun=bugunSanaBoshlanishi();
+      snap.forEach(c=>{
+        const s=c.val();
+        if(s.date && s.date.startsWith(bugun)){ jami+=Number(s.total)||0; soni++; }
+      });
+      if(soni===0){
+        javobChiqar('Bugun hali sotuv bo\'lmagan.', 'Bugun hali sotuv bo\'lmagan.');
+      } else {
+        const txt=`Bugun <b>${soni} ta</b> sotuv, jami <b>${jami.toLocaleString()} so'm</b>.`;
+        javobChiqar(txt, `Bugun ${soni} ta sotuv, jami ${jami.toLocaleString()} so'm bo'ldi.`);
+      }
+    });
+    return;
+  }
+
+  // 2) OMBORNING UMUMIY QIYMATI
+  if(matn.includes('ombor') && (matn.includes('qiymat') || matn.includes('summ') || matn.includes('umumiy'))){
+    db.ref('ombor').once('value',snap=>{
+      let jami=0, turi=0;
+      snap.forEach(c=>{
+        const o=c.val();
+        jami += (Number(o.narx)||0) * (Number(o.son)||0);
+        turi++;
+      });
+      const txt=`Omborda <b>${turi} xil</b> mahsulot, umumiy qiymati <b>${jami.toLocaleString()} so'm</b>.`;
+      javobChiqar(txt, `Omborda ${turi} xil mahsulot bor, umumiy qiymati ${jami.toLocaleString()} so'm.`);
+    });
+    return;
+  }
+
+  // 3) ENG KO'P SOTILGAN MAHSULOT
+  if(matn.includes('eng ko') && matn.includes('sotilgan')){
+    db.ref('sales').once('value',snap=>{
+      const hisob={};
+      snap.forEach(c=>{
+        const s=c.val();
+        hisob[s.nom]=(hisob[s.nom]||0)+(Number(s.qty)||0);
+      });
+      const kalitlar=Object.keys(hisob);
+      if(!kalitlar.length){
+        javobChiqar('Hali hech qanday sotuv yo\'q.', 'Hali hech qanday sotuv yo\'q.');
+        return;
+      }
+      let top=kalitlar[0];
+      kalitlar.forEach(k=>{ if(hisob[k]>hisob[top]) top=k; });
+      const txt=`Eng ko'p sotilgan mahsulot: <b>${top}</b> — ${hisob[top]} dona.`;
+      javobChiqar(txt, `Eng ko'p sotilgan mahsulot ${top}, jami ${hisob[top]} dona sotilgan.`);
+    });
+    return;
+  }
+
+  // 4) MAHSULOT QOLDIG'I ("omborda [nom] necha/qancha")
+  if(matn.includes('omborda') || (matn.includes('ombor') && matn.includes('necha'))){
+    db.ref('ombor').once('value',snap=>{
+      let topilgan=null;
+      snap.forEach(c=>{
+        const o=c.val();
+        if(o.nom && matn.includes(o.nom.toLowerCase())) topilgan=o;
+      });
+      if(topilgan){
+        const txt=`<b>${topilgan.nom}</b> — omborda <b>${topilgan.son} dona</b> qoldi, narxi ${Number(topilgan.narx).toLocaleString()} so'm.`;
+        javobChiqar(txt, `${topilgan.nom} omborda ${topilgan.son} dona qoldi.`);
+      } else {
+        javobChiqar('Bu nomdagi mahsulotni topa olmadim.', 'Bu nomdagi mahsulotni topa olmadim.');
+      }
+    });
+    return;
+  }
+
+  // 5) TA'MIRLASH STATUSI
+  if(matn.includes('tamirlash') || matn.includes("ta'mirlash") || matn.includes('kutilmoqda') || matn.includes('ishlashda')){
+    db.ref('repairs').once('value',snap=>{
+      let kutilmoqda=0, ishlashda=0, tayyor=0;
+      snap.forEach(c=>{
+        const r=c.val();
+        if(r.status==='Kutilmoqda')kutilmoqda++;
+        else if(r.status==='Ishlashda')ishlashda++;
+        else if(r.status==='Tayyor')tayyor++;
+      });
+      const txt=`Kutilmoqda: <b>${kutilmoqda}</b>, Ishlashda: <b>${ishlashda}</b>, Tayyor: <b>${tayyor}</b>.`;
+      javobChiqar(txt, `${kutilmoqda} ta buyurtma kutilmoqda, ${ishlashda} tasi ishlashda, ${tayyor} tasi tayyor.`);
+    });
+    return;
+  }
+
+  // TUSHUNILMADI
+  const yordam='Savolni tushunmadim. "yordam" deb ayting — barcha buyruqlarni ko\'rasiz, yoki qayta urinib ko\'ring.<br><button onclick="micBosildi()" style="margin-top:10px;padding:8px 16px;background:#667eea;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:700">🎙️ Qayta so\'rash</button>';
+  javobChiqar(yordam, 'Kechirasiz, savolni tushunmadim. Yordam deb ayting, buyruqlarni eshitasiz.');
+}
+
+/* ================= QR SKANER — AVTOMATIK SOTISH ================= */
+let html5QrCode=null, skanerIshlayapti=false, oxirgiSkan={};
+
+function startSkaner(){
+  if(skanerIshlayapti)return;
+  const el=document.getElementById('qrReader');
+  if(!el)return;
+  el.innerHTML='';
+  id('scanMsg').innerHTML='';
+  html5QrCode=new Html5Qrcode('qrReader');
+  Html5Qrcode.getCameras().then(cams=>{
+    if(!cams||!cams.length){ msg('scanMsg','❌ Kamera topilmadi.',true); return; }
+    const camId=cams[cams.length>1?1:0].id; // ko'pincha orqa kamera oxirgi bo'ladi
+    html5QrCode.start(
+      camId,
+      { fps:10, qrbox:{width:230,height:230} },
+      qrKodOqildi,
+      ()=>{} // skanlash davomidagi xatolarni e'tiborsiz qoldiramiz
+    ).then(()=>{ skanerIshlayapti=true; }).catch(e=>{
+      msg('scanMsg','❌ Kamera ochilmadi: '+e,true);
+    });
+  }).catch(e=>{
+    msg('scanMsg','❌ Kamera ruxsati berilmadi.',true);
+  });
+}
+
+function stopSkaner(){
+  if(html5QrCode&&skanerIshlayapti){
+    html5QrCode.stop().then(()=>{ html5QrCode.clear(); skanerIshlayapti=false; }).catch(()=>{ skanerIshlayapti=false; });
+  }
+}
+
+function qrKodOqildi(decodedText){
+  const now=Date.now();
+  if(oxirgiSkan[decodedText] && now-oxirgiSkan[decodedText] < 4000) return; // takroriy skanni o'tkazib yuborish
+  oxirgiSkan[decodedText]=now;
+
+  const k=decodedText.trim();
+  db.ref('ombor/'+k).once('value',snap=>{
+    const o=snap.val();
+    if(!o){
+      korsatSkanNatija(false,'Bu QR-kodga mos mahsulot topilmadi.');
+      return;
+    }
+    if(o.son<=0){
+      korsatSkanNatija(false,`"${o.nom}" ombordan tugagan.`);
+      return;
+    }
+    const qty=1, payment='Naqt';
+    const sana=new Date().toLocaleString('uz-UZ');
+    const total=o.narx*qty;
+    const totalDollar=(parseFloat(o.narxDollar||somToDollar(o.narx))*qty).toFixed(2);
+    const saleData={nom:o.nom,narx:o.narx,narxDollar:o.narxDollar,qty,total,totalDollar,payment,date:sana,by:auth.currentUser.email,kurs:dollarKurs};
+    db.ref('sales').push(saleData).then(ref=>{
+      db.ref('ombor/'+k+'/son').set(o.son-qty);
+      korsatSkanNatija(true,`"${o.nom}" sotildi — ${total.toLocaleString()} so'm`, ref.key);
+      chekSotish(saleData);
+    });
+  });
+}
+
+function korsatSkanNatija(ok,matn,saleKey){
+  const el=id('scanResult');
+  el.innerHTML=`
+    <div class="scan-card ${ok?'':'err'}">
+      <h3>${ok?'✅ Sotildi':'⚠️ Diqqat'}</h3>
+      <p>${matn}</p>
+      ${saleKey?`<button onclick="bekorQilSkan('${saleKey}')" style="margin-top:8px;padding:6px 14px;background:#ff4757;color:white;border:none;border-radius:4px;cursor:pointer">↩️ Bekor qilish</button>`:''}
+    </div>`;
+}
+
+function bekorQilSkan(saleKey){
+  db.ref('sales/'+saleKey).once('value',snap=>{
+    const s=snap.val();
+    if(!s)return;
+    db.ref('sales/'+saleKey).remove().then(()=>{
+      // ombordagi sonni qaytarish uchun mahsulotni nomi orqali topamiz
+      db.ref('ombor').orderByChild('nom').equalTo(s.nom).once('value',osnap=>{
+        osnap.forEach(child=>{
+          db.ref('ombor/'+child.key+'/son').set((child.val().son||0)+s.qty);
+        });
+      });
+      id('scanResult').innerHTML='<div class="scan-card"><p>↩️ Bekor qilindi, ombor qaytarildi.</p></div>';
+    });
+  });
+}
+</script>
+</body>
+</html>
