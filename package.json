@@ -1,0 +1,28 @@
+{
+  "name": "compux-uz",
+  "version": "1.0.0",
+  "description": "COMPUX UZ - kompyuter ta'mirlash va savdo dasturi",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win"
+  },
+  "author": "COMPUX UZ",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "uz.compux.app",
+    "productName": "COMPUX UZ",
+    "win": {
+      "target": "nsis"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "COMPUX_UZ.html"
+    ]
+  }
+}
