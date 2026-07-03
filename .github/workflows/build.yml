@@ -1,0 +1,30 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Kodni olish
+        uses: actions/checkout@v4
+
+      - name: Node.js o'rnatish
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Paketlarni o'rnatish
+        run: npm install
+
+      - name: .exe yasash
+        run: npm run build
+
+      - name: Natijani saqlash
+        uses: actions/upload-artifact@v4
+        with:
+          name: COMPUX-UZ-installer
+          path: dist/*.exe
